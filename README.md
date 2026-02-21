@@ -1,6 +1,6 @@
 # NPS Retirement Corpus & Pension Forecasting Tool
 
-A fully functional, production-ready MERN stack web application for National Pension System (NPS) retirement planning and pension forecasting.
+A fully functional, production-ready full-stack web application for National Pension System (NPS) retirement planning and pension forecasting.
 
 ## 🎯 Features
 
@@ -28,8 +28,8 @@ A fully functional, production-ready MERN stack web application for National Pen
 ### Backend
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB ODM
+- **MySQL** - Relational database
+- **Sequelize** - ORM for MySQL
 - **JWT** - JSON Web Tokens for authentication
 - **bcryptjs** - Password hashing
 
@@ -101,7 +101,7 @@ nps-retirement-tool/
 
 ### Prerequisites
 - Node.js 16+ and npm/yarn
-- MongoDB (local or Atlas)
+- MySQL 8+
 - Git
 
 ### Backend Setup
@@ -124,23 +124,28 @@ cp .env.example .env
 4. **Configure environment variables in `.env`:**
 ```
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/nps-retirement
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=Retirement
+DB_USER=root
+DB_PASSWORD=
+DB_SYNC_ALTER=false
 NODE_ENV=development
 JWT_SECRET=your_secure_jwt_secret_key_here
 JWT_EXPIRE=7d
 CORS_ORIGIN=http://localhost:3000
 ```
 
-5. **Start MongoDB (if local):**
+5. **Ensure MySQL is running (if local):**
 ```bash
 # macOS with Homebrew
-brew services start mongodb-community
+brew services start mysql
 
 # Linux
-sudo systemctl start mongod
+sudo systemctl start mysql
 
 # Windows
-# MongoDB should be running as a service
+# MySQL should be running as a service
 ```
 
 6. **Start the backend server:**
@@ -239,7 +244,7 @@ For testing purposes, create a test user via registration or login with:
 
 ## 🚢 Deployment Guide
 
-### Backend Deployment (Heroku)
+### Backend Deployment
 
 1. **Create Heroku account and install CLI**
 
@@ -253,9 +258,16 @@ heroku login
 heroku create your-app-name
 ```
 
-4. **Add MongoDB Atlas connection string:**
+4. **Set MySQL and app environment variables:**
 ```bash
-heroku config:set MONGODB_URI=your_mongodb_atlas_uri
+DB_HOST=your_host
+DB_PORT=3306
+DB_NAME=your_db
+DB_USER=your_user
+DB_PASSWORD=your_password
+JWT_SECRET=your_secret
+CORS_ORIGIN=your_frontend_url
+NODE_ENV=production
 ```
 
 5. **Set other environment variables:**

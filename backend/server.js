@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './src/config/database.js';
+import connectDB, { getDatabaseStatus } from './src/config/database.js';
 import routes from './src/routes/index.js';
 import { errorHandler } from './src/middleware/auth.js';
 
@@ -9,26 +9,69 @@ dotenv.config();
 
 const app = express();
 
-// Connect to MySQL Database
-connectDB();
+const DEFAULT_PORT = Number(process.env.PORT || 5000);
+const MAX_PORT_RETRIES = Number(process.env.MAX_PORT_RETRIES || 10);
+const JSON_LIMIT = process.env.JSON_LIMIT || '1mb';
+const URL_ENCODED_LIMIT = process.env.URL_ENCODED_LIMIT || '1mb';
+
+const parseCorsOrigins = () => {
+  const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000';
+  return rawOrigins
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+};
+
+const allowedOrigins = parseCorsOrigins();
+
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1);
+}
+
+const startedAt = Date.now();
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: JSON_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: URL_ENCODED_LIMIT }));
 
 // CORS
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('CORS origin not allowed'));
+    },
     credentials: true,
   })
 );
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+  const dbStatus = getDatabaseStatus();
+
   res.status(200).json({
     success: true,
     message: 'Server is running',
+    uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
+    environment: process.env.NODE_ENV || 'development',
+    database: dbStatus,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Readiness endpoint for deployment platforms
+app.get('/api/ready', (req, res) => {
+  const dbStatus = getDatabaseStatus();
+  const isReady = dbStatus.connected;
+
+  res.status(isReady ? 200 : 503).json({
+    success: isReady,
+    message: isReady ? 'Service is ready' : 'Service is not ready',
+    database: dbStatus,
     timestamp: new Date().toISOString(),
   });
 });
@@ -47,14 +90,12 @@ app.use((req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-const DEFAULT_PORT = Number(process.env.PORT || 5000);
-const MAX_PORT_RETRIES = 10;
-
 const startServer = (port, retryCount = 0) => {
   const server = app
     .listen(port, () => {
       console.log(`Server running on port ${port}`);
       console.log(`Environment: ${process.env.NODE_ENV}`);
+      console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
     })
     .on('error', (error) => {
       if (error.code === 'EADDRINUSE' && retryCount < MAX_PORT_RETRIES) {
@@ -73,6 +114,35 @@ const startServer = (port, retryCount = 0) => {
   return server;
 };
 
-startServer(DEFAULT_PORT);
+let activeServer;
+
+const shutdown = (signal) => {
+  console.log(`${signal} received. Shutting down gracefully...`);
+
+  if (activeServer) {
+    activeServer.close(() => {
+      console.log('HTTP server closed.');
+      process.exit(0);
+    });
+    return;
+  }
+
+  process.exit(0);
+};
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+const bootstrap = async () => {
+  try {
+    await connectDB();
+    activeServer = startServer(DEFAULT_PORT);
+  } catch (error) {
+    console.error(`Failed to bootstrap server: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+bootstrap();
 
 export default app;

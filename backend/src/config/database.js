@@ -9,6 +9,13 @@ const dbPort = Number(process.env.DB_PORT || 3306);
 const dbName = process.env.DB_NAME || 'nps_retirement';
 const dbUser = process.env.DB_USER || 'root';
 const dbPassword = process.env.DB_PASSWORD || '';
+const dbStatus = {
+  connected: false,
+  host: dbHost,
+  database: dbName,
+  lastCheckedAt: null,
+  error: null,
+};
 
 const sequelize = new Sequelize(
   dbName,
@@ -56,13 +63,22 @@ const connectDB = async () => {
       await sequelize.sync();
     }
 
+    dbStatus.connected = true;
+    dbStatus.lastCheckedAt = new Date().toISOString();
+    dbStatus.error = null;
+
     console.log(`MySQL Connected: ${dbHost}/${dbName}`);
     return sequelize;
   } catch (error) {
+    dbStatus.connected = false;
+    dbStatus.lastCheckedAt = new Date().toISOString();
+    dbStatus.error = error.message;
     console.error(`Error: ${error.message}`);
-    process.exit(1);
+    throw error;
   }
 };
 
+const getDatabaseStatus = () => ({ ...dbStatus });
+
 export default connectDB;
-export { sequelize };
+export { sequelize, getDatabaseStatus };
