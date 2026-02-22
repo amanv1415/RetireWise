@@ -27,7 +27,18 @@ const LoginPage = () => {
     setLoading(true);
     setAlert(null);
 
-    const result = await login(formData.email, formData.password);
+    const email = String(formData.email || '').trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValidEmail) {
+      setAlert({
+        type: 'error',
+        message: 'Enter correct email id',
+      });
+      setLoading(false);
+      return;
+    }
+
+    const result = await login(email, formData.password);
 
     if (result.success) {
       const redirectPath = location.state?.from?.pathname || '/dashboard';

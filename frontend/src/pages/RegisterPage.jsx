@@ -20,6 +20,8 @@ const RegisterPage = () => {
     confirmPassword: '',
   });
 
+  const inputClassName = 'input-field placeholder:opacity-40';
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -32,6 +34,17 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     setAlert(null);
+
+    const email = String(formData.email || '').trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValidEmail) {
+      setAlert({
+        type: 'error',
+        message: 'Enter correct email id',
+      });
+      setLoading(false);
+      return;
+    }
 
     // Basic validation
     if (formData.password !== formData.confirmPassword) {
@@ -63,7 +76,7 @@ const RegisterPage = () => {
     }
 
     const result = await register(
-      formData.email,
+      email,
       formData.name,
       formData.gender,
       normalizedPhone,
@@ -124,7 +137,7 @@ const RegisterPage = () => {
               onChange={handleInputChange}
               placeholder="Enter name"
               required
-              className="input-field"
+              className={inputClassName}
             />
             </div>
 
@@ -139,7 +152,7 @@ const RegisterPage = () => {
               onChange={handleInputChange}
               placeholder="your@email.com"
               required
-              className="input-field"
+              className={inputClassName}
             />
             </div>
 
@@ -173,7 +186,7 @@ const RegisterPage = () => {
               onChange={handleInputChange}
               placeholder="9876543210"
               required
-              className="input-field"
+              className={inputClassName}
             />
             </div>
 
@@ -202,7 +215,7 @@ const RegisterPage = () => {
                 onChange={handleInputChange}
                 placeholder="Mumbai"
                 required
-                className="input-field"
+                className={inputClassName}
               />
             </div>
 
@@ -217,7 +230,7 @@ const RegisterPage = () => {
                 onChange={handleInputChange}
                 placeholder="Software Engineer"
                 required
-                className="input-field"
+                className={inputClassName}
               />
             </div>
 
@@ -232,7 +245,7 @@ const RegisterPage = () => {
               onChange={handleInputChange}
               placeholder="••••••••"
               required
-              className="input-field"
+              className={inputClassName}
             />
             <p className="text-xs text-gray-500 mt-1">
               Must be at least 8 characters
@@ -250,7 +263,7 @@ const RegisterPage = () => {
               onChange={handleInputChange}
               placeholder="••••••••"
               required
-              className="input-field"
+              className={inputClassName}
             />
             </div>
           </div>

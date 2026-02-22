@@ -56,9 +56,15 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        (error.request ? 'Cannot reach backend. Check API URL/CORS/server status.' : null) ||
+        error.message ||
+        'Registration failed';
+
       return {
         success: false,
-        error: error.response?.data?.message || 'Registration failed',
+        error: message,
       };
     }
   };
@@ -77,9 +83,15 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        (error.request ? 'Cannot reach backend. Check API URL/CORS/server status.' : null) ||
+        error.message ||
+        'Login failed';
+
       return {
         success: false,
-        error: error.response?.data?.message || 'Login failed',
+        error: message,
       };
     }
   };

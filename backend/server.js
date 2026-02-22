@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB, { getDatabaseStatus } from './src/config/database.js';
 import routes from './src/routes/index.js';
 import { errorHandler } from './src/middleware/auth.js';
+import { assertJwtConfig } from './src/utils/auth.js';
 
 dotenv.config();
 
@@ -26,6 +27,17 @@ const parseCorsOrigins = () => {
 
 const allowedOrigins = parseCorsOrigins();
 
+const isLocalDevOrigin = (origin) => {
+  if (!origin) {
+    return false;
+  }
+
+  return (
+    /^http:\/\/localhost:\d+$/.test(origin) ||
+    /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+  );
+};
+
 if (process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', 1);
 }
@@ -40,7 +52,11 @@ app.use(express.urlencoded({ extended: true, limit: URL_ENCODED_LIMIT }));
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        (process.env.NODE_ENV !== 'production' && isLocalDevOrigin(origin))
+      ) {
         callback(null, true);
         return;
       }
@@ -137,6 +153,7 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 const bootstrap = async () => {
   try {
+    assertJwtConfig();
     await connectDB();
     activeServer = startServer(DEFAULT_PORT);
   } catch (error) {

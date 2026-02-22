@@ -33,7 +33,13 @@ export class UserService {
       password: hashedPassword,
     });
 
-    const token = generateToken(user._id.toString());
+    let token;
+    try {
+      token = generateToken(user._id.toString());
+    } catch (tokenError) {
+      await User.deleteOne({ _id: user._id });
+      throw tokenError;
+    }
 
     return {
       user: {

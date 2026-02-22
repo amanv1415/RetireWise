@@ -72,6 +72,11 @@ CORS_ORIGIN=<your_frontend_url>
 - `https://<your-backend>.onrender.com/api/health`
 - `https://<your-backend>.onrender.com/api/ready`
 
+### Troubleshooting: `secretOrPrivateKey must have a value`
+- In Render backend service, set `JWT_SECRET` to a long random value and redeploy.
+- If you use alternative key names, backend also supports `SECRET_KEY` or `JWT_PRIVATE_KEY`.
+- Ensure you redeploy backend after changing environment variables.
+
 ## Render Frontend Setup
 
 If using the repo blueprint (`render.yaml`), Render will create `retirewise-frontend` automatically.
