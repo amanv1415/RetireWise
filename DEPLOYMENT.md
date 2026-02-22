@@ -72,6 +72,17 @@ CORS_ORIGIN=<your_frontend_url>
 - `https://<your-backend>.onrender.com/api/health`
 - `https://<your-backend>.onrender.com/api/ready`
 
+## Render Frontend Setup
+
+If using the repo blueprint (`render.yaml`), Render will create `retirewise-frontend` automatically.
+
+### Frontend Environment Variable
+- `VITE_API_BASE_URL=https://<your-backend>.onrender.com/api`
+
+### Verify After Deploy
+- Open frontend URL from Render dashboard
+- Confirm API calls succeed (register/login/calculator)
+
 ## Frontend Deployment
 
 ### 1) Build
