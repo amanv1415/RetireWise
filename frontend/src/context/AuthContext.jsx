@@ -22,11 +22,26 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const register = async (email, name, password, confirmPassword) => {
+  const register = async (
+    email,
+    name,
+    gender,
+    phone,
+    dateOfBirth,
+    city,
+    occupation,
+    password,
+    confirmPassword
+  ) => {
     try {
       const response = await userApi.register({
         email,
         name,
+        gender,
+        phone,
+        dateOfBirth,
+        city,
+        occupation,
         password,
         confirmPassword,
       });

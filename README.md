@@ -28,8 +28,8 @@ A fully functional, production-ready full-stack web application for National Pen
 ### Backend
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web framework
-- **MySQL** - Relational database
-- **Sequelize** - ORM for MySQL
+- **MongoDB Atlas** - Cloud NoSQL database
+- **Mongoose** - ODM for MongoDB
 - **JWT** - JSON Web Tokens for authentication
 - **bcryptjs** - Password hashing
 
@@ -101,7 +101,7 @@ nps-retirement-tool/
 
 ### Prerequisites
 - Node.js 16+ and npm/yarn
-- MySQL 8+
+- MongoDB Atlas (or local MongoDB)
 - Git
 
 ### Backend Setup
@@ -124,28 +124,23 @@ cp .env.example .env
 4. **Configure environment variables in `.env`:**
 ```
 PORT=5000
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=Retirement
-DB_USER=root
-DB_PASSWORD=
-DB_SYNC_ALTER=false
+MONGODB_URI=mongodb://127.0.0.1:27017/retirewise
 NODE_ENV=development
 JWT_SECRET=your_secure_jwt_secret_key_here
 JWT_EXPIRE=7d
 CORS_ORIGIN=http://localhost:3000
 ```
 
-5. **Ensure MySQL is running (if local):**
+5. **Ensure MongoDB is running (if local):**
 ```bash
 # macOS with Homebrew
-brew services start mysql
+brew services start mongodb-community
 
 # Linux
-sudo systemctl start mysql
+sudo systemctl start mongod
 
 # Windows
-# MySQL should be running as a service
+# MongoDB should be running as a service
 ```
 
 6. **Start the backend server:**
@@ -258,13 +253,9 @@ heroku login
 heroku create your-app-name
 ```
 
-4. **Set MySQL and app environment variables:**
+4. **Set MongoDB and app environment variables:**
 ```bash
-DB_HOST=your_host
-DB_PORT=3306
-DB_NAME=your_db
-DB_USER=your_user
-DB_PASSWORD=your_password
+MONGODB_URI=your_mongodb_atlas_uri
 JWT_SECRET=your_secret
 CORS_ORIGIN=your_frontend_url
 NODE_ENV=production

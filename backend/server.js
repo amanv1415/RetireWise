@@ -11,6 +11,8 @@ const app = express();
 
 const DEFAULT_PORT = Number(process.env.PORT || 5000);
 const MAX_PORT_RETRIES = Number(process.env.MAX_PORT_RETRIES || 10);
+const EFFECTIVE_MAX_PORT_RETRIES =
+  process.env.NODE_ENV === 'production' ? 0 : MAX_PORT_RETRIES;
 const JSON_LIMIT = process.env.JSON_LIMIT || '1mb';
 const URL_ENCODED_LIMIT = process.env.URL_ENCODED_LIMIT || '1mb';
 
@@ -98,7 +100,7 @@ const startServer = (port, retryCount = 0) => {
       console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
     })
     .on('error', (error) => {
-      if (error.code === 'EADDRINUSE' && retryCount < MAX_PORT_RETRIES) {
+      if (error.code === 'EADDRINUSE' && retryCount < EFFECTIVE_MAX_PORT_RETRIES) {
         const nextPort = port + 1;
         console.warn(
           `Port ${port} is already in use. Retrying on port ${nextPort}...`

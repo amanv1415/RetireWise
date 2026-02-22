@@ -3,7 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/retirewise';
+const mongoUri =
+  process.env.MONGODB_URL ||
+  process.env.MONGODB_URI ||
+  'mongodb://127.0.0.1:27017/retirewise';
 const dbStatus = {
   connected: false,
   host: null,

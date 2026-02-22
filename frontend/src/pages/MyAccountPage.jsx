@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMail, FiUser, FiHash, FiLogOut } from 'react-icons/fi';
+import { FiMail, FiUser, FiHash, FiLogOut, FiPhone, FiMapPin, FiBriefcase, FiCalendar } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext.jsx';
 import { userApi } from '../utils/api.js';
 import Alert from '../components/Alert.jsx';
@@ -81,6 +81,46 @@ const MyAccountPage = () => {
               <div>
                 <p className="text-sm text-gray-500">Email Address</p>
                 <p className="font-semibold break-all">{profile?.email || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 bg-white">
+              <FiPhone className="mt-0.5 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-500">Phone Number</p>
+                <p className="font-semibold break-all">{profile?.phone || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 bg-white">
+              <FiUser className="mt-0.5 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-500">Gender</p>
+                <p className="font-semibold">{profile?.gender || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 bg-white">
+              <FiCalendar className="mt-0.5 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-500">Date of Birth</p>
+                <p className="font-semibold">{profile?.dateOfBirth || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 bg-white">
+              <FiMapPin className="mt-0.5 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-500">City</p>
+                <p className="font-semibold">{profile?.city || 'Not available'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 bg-white">
+              <FiBriefcase className="mt-0.5 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-500">Occupation</p>
+                <p className="font-semibold">{profile?.occupation || 'Not available'}</p>
               </div>
             </div>
 
