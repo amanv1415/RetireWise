@@ -1,73 +1,60 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
-import User from './User.js';
+import mongoose from 'mongoose';
 
-const Forecast = sequelize.define('Forecast', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
-  },
-  userId: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id',
+const forecastSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
+    forecastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    currentAge: {
+      type: Number,
+      required: true,
+    },
+    retirementAge: {
+      type: Number,
+      required: true,
+    },
+    monthlyContribution: {
+      type: Number,
+      required: true,
+    },
+    expectedReturn: {
+      type: Number,
+      required: true,
+    },
+    annuityReturn: {
+      type: Number,
+      required: true,
+    },
+    totalRetirementCorpus: {
+      type: Number,
+      required: true,
+    },
+    lumpSum: {
+      type: Number,
+      required: true,
+    },
+    pensionAmount: {
+      type: Number,
+      required: true,
+    },
+    yearlyPension: {
+      type: Number,
+      required: true,
     },
   },
-  forecastName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    trim: true,
-  },
-  currentAge: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  retirementAge: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  monthlyContribution: {
-    type: DataTypes.DECIMAL(12, 2),
-    allowNull: false,
-  },
-  expectedReturn: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: false,
-  },
-  annuityReturn: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: false,
-  },
-  totalRetirementCorpus: {
-    type: DataTypes.DECIMAL(15, 2),
-    allowNull: false,
-  },
-  lumpSum: {
-    type: DataTypes.DECIMAL(15, 2),
-    allowNull: false,
-  },
-  pensionAmount: {
-    type: DataTypes.DECIMAL(15, 2),
-    allowNull: false,
-  },
-  yearlyPension: {
-    type: DataTypes.DECIMAL(15, 2),
-    allowNull: false,
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
-Forecast.belongsTo(User, { foreignKey: 'userId' });
-User.hasMany(Forecast, { foreignKey: 'userId' });
+const Forecast = mongoose.models.Forecast || mongoose.model('Forecast', forecastSchema);
 
 export default Forecast;

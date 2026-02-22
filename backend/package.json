@@ -24,13 +24,11 @@
     "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
-    "mysql2": "^3.17.4",
+    "mongoose": "^8.12.1",
     "pdfkit": "^0.13.0",
-    "sequelize": "^6.37.7",
     "validator": "^13.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "sequelize-cli": "^6.6.5"
+    "nodemon": "^3.0.1"
   }
 }

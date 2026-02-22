@@ -9,12 +9,68 @@ import { UserService } from '../services/index.js';
  */
 export const register = async (req, res) => {
   try {
-    const { email, name, password, confirmPassword } = req.body;
+    const {
+      email,
+      name,
+      gender,
+      phone,
+      dateOfBirth,
+      city,
+      occupation,
+      password,
+      confirmPassword,
+    } = req.body;
 
-    if (!email || !name || !password || !confirmPassword) {
+    if (!email || !name || !gender || !phone || !password || !confirmPassword) {
       return res.status(400).json({
         success: false,
         message: 'All fields are required',
+      });
+    }
+
+    if (!dateOfBirth || !city || !occupation) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all profile fields',
+      });
+    }
+
+    const allowedGenders = ['male', 'female', 'other', 'prefer-not-to-say'];
+    if (!allowedGenders.includes(String(gender).toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select a valid gender option',
+      });
+    }
+
+    const normalizedPhone = String(phone).replace(/\D/g, '');
+    if (normalizedPhone.length < 10 || normalizedPhone.length > 15) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid phone number',
+      });
+    }
+
+    const parsedDob = new Date(dateOfBirth);
+    const today = new Date();
+    if (Number.isNaN(parsedDob.getTime()) || parsedDob > today) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid date of birth',
+      });
+    }
+
+    if (String(city).trim().length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'City name is too long',
+      });
+    }
+
+    if (String(occupation).trim().length > 120) {
+      return res.status(400).json({
+        success: false,
+        message: 'Occupation is too long',
       });
     }
 
@@ -32,7 +88,18 @@ export const register = async (req, res) => {
       });
     }
 
-    const result = await UserService.register(email, name, password);
+    const result = await UserService.register(
+      email,
+      name,
+      String(gender).toLowerCase(),
+      normalizedPhone,
+      {
+        dateOfBirth: dateOfBirth || null,
+        city: city?.trim() || null,
+        occupation: occupation?.trim() || null,
+      },
+      password
+    );
 
     res.status(201).json({
       success: true,

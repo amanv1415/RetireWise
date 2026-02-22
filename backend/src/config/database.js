@@ -1,74 +1,31 @@
-import { Sequelize } from 'sequelize';
-import mysql from 'mysql2/promise';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const dbHost = process.env.DB_HOST || 'localhost';
-const dbPort = Number(process.env.DB_PORT || 3306);
-const dbName = process.env.DB_NAME || 'nps_retirement';
-const dbUser = process.env.DB_USER || 'root';
-const dbPassword = process.env.DB_PASSWORD || '';
+const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/retirewise';
 const dbStatus = {
   connected: false,
-  host: dbHost,
-  database: dbName,
+  host: null,
+  database: null,
   lastCheckedAt: null,
   error: null,
 };
 
-const sequelize = new Sequelize(
-  dbName,
-  dbUser,
-  dbPassword,
-  {
-    host: dbHost,
-    port: dbPort,
-    dialect: 'mysql',
-    logging: false,
-  }
-);
-
-const ensureDatabaseExists = async () => {
-  const connection = await mysql.createConnection({
-    host: dbHost,
-    port: dbPort,
-    user: dbUser,
-    password: dbPassword,
-  });
-
-  await connection.query(
-    `CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
-  );
-  await connection.end();
-};
-
 const connectDB = async () => {
   try {
-    await ensureDatabaseExists();
-    await sequelize.authenticate();
+    await mongoose.connect(mongoUri);
 
-    const shouldAlterSchema = process.env.DB_SYNC_ALTER === 'true';
-
-    if (shouldAlterSchema) {
-      try {
-        await sequelize.sync({ alter: true });
-      } catch (syncError) {
-        console.warn(
-          `Schema alter failed (${syncError.message}). Falling back to safe sync.`
-        );
-        await sequelize.sync();
-      }
-    } else {
-      await sequelize.sync();
-    }
+    const { host, name } = mongoose.connection;
 
     dbStatus.connected = true;
+    dbStatus.host = host;
+    dbStatus.database = name;
     dbStatus.lastCheckedAt = new Date().toISOString();
     dbStatus.error = null;
 
-    console.log(`MySQL Connected: ${dbHost}/${dbName}`);
-    return sequelize;
+    console.log(`MongoDB Connected: ${host}/${name}`);
+    return mongoose.connection;
   } catch (error) {
     dbStatus.connected = false;
     dbStatus.lastCheckedAt = new Date().toISOString();
@@ -81,4 +38,4 @@ const connectDB = async () => {
 const getDatabaseStatus = () => ({ ...dbStatus });
 
 export default connectDB;
-export { sequelize, getDatabaseStatus };
+export { getDatabaseStatus };
