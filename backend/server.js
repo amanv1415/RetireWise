@@ -17,24 +17,33 @@ const EFFECTIVE_MAX_PORT_RETRIES =
 const JSON_LIMIT = process.env.JSON_LIMIT || '1mb';
 const URL_ENCODED_LIMIT = process.env.URL_ENCODED_LIMIT || '1mb';
 
+const normalizeOrigin = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  return String(value).trim().replace(/\/+$/, '').toLowerCase();
+};
+
 const parseCorsOrigins = () => {
   const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000';
   return rawOrigins
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
 };
 
 const allowedOrigins = parseCorsOrigins();
 
 const isLocalDevOrigin = (origin) => {
-  if (!origin) {
+  const normalizedOrigin = normalizeOrigin(origin);
+  if (!normalizedOrigin) {
     return false;
   }
 
   return (
-    /^http:\/\/localhost:\d+$/.test(origin) ||
-    /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+    /^http:\/\/localhost:\d+$/.test(normalizedOrigin) ||
+    /^http:\/\/127\.0\.0\.1:\d+$/.test(normalizedOrigin)
   );
 };
 
@@ -52,9 +61,11 @@ app.use(express.urlencoded({ extended: true, limit: URL_ENCODED_LIMIT }));
 app.use(
   cors({
     origin: (origin, callback) => {
+      const normalizedOrigin = normalizeOrigin(origin);
+
       if (
         !origin ||
-        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes(normalizedOrigin) ||
         (process.env.NODE_ENV !== 'production' && isLocalDevOrigin(origin))
       ) {
         callback(null, true);

@@ -23,7 +23,7 @@ const getJwtSecret = () => {
     process.env.SECRET_KEY ||
     process.env.JWT_PRIVATE_KEY;
 
-  if (secret && secret.trim() && !isPlaceholderSecret(secret)) {
+  if (secret && secret.trim()) {
     return secret;
   }
 
@@ -37,7 +37,14 @@ const getJwtSecret = () => {
 };
 
 export const assertJwtConfig = () => {
-  getJwtSecret();
+  const secret = getJwtSecret();
+
+  if (process.env.NODE_ENV === 'production' && isPlaceholderSecret(secret)) {
+    console.warn(
+      'Warning: Placeholder JWT secret is being used in production. Set a strong JWT_SECRET.'
+    );
+  }
+
   return true;
 };
 
